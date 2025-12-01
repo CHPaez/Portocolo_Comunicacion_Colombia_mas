@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Formulario - Trámites y novedades</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: "Segoe UI", system-ui, sans-serif; background: #f3f5f7; margin: 0; padding: 1.5rem; color: #263238; }
+    .wrapper {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 1.5rem 1.7rem;
+      border-radius: 16px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+    }
+    h1 { font-size: 1.3rem; margin-bottom: 0.4rem; }
+    p { font-size: 0.9rem; margin-bottom: 1rem; }
+    .grid-2 { display: grid; gap: 0.9rem; }
+    @media (min-width: 700px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    label { font-size: 0.84rem; font-weight: 600; display: block; margin-bottom: 0.25rem; }
+    input, select, textarea {
+      width: 100%; padding: 0.55rem 0.6rem; border-radius: 8px; border: 1px solid #cfd8dc;
+      font-size: 0.88rem; font-family: inherit; box-sizing: border-box;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .campo { margin-bottom: 0.7rem; }
+    button {
+      margin-top: 1rem; border: none; border-radius: 999px; padding: 0.7rem 1.4rem;
+      background: linear-gradient(135deg, #283593, #0066cc); color: #ffffff;
+      font-weight: 600; font-size: 0.9rem; cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16); transition: all 0.2s ease;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18); }
+    small { font-size: 0.8rem; color: #607d8b; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>Formulario de trámites y novedades</h1>
+    <p>Ejemplo de formulario general para solicitudes de administración de personal, nómina, SST y bienestar.</p>
+
+    <form>
+      <div class="grid-2">
+        <div class="campo">
+          <label>Nombre del colaborador</label>
+          <input type="text" placeholder="Nombre completo" />
+        </div>
+        <div class="campo">
+          <label>Documento de identidad</label>
+          <input type="text" placeholder="Cédula" />
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="campo">
+          <label>Área / Cargo</label>
+          <input type="text" placeholder="Ej: Producción - Editor de video" />
+        </div>
+        <div class="campo">
+          <label>Correo institucional</label>
+          <input type="email" placeholder="nombre@colombiamas.com" />
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Tipo de trámite</label>
+        <select>
+          <option>Selecciona...</option>
+          <option>Administración de Personal (certificados, constancias, actualización de datos)</option>
+          <option>Nómina y beneficios (incapacidades, licencias, deducciones, auxilios)</option>
+          <option>SST (accidente laboral, EPP, pausas activas, exámenes médicos)</option>
+          <option>Bienestar y Cultura (actividades, reconocimientos, apoyo psicosocial)</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Descripción del trámite / solicitud</label>
+        <textarea placeholder="Describe de forma clara qué necesitas y, si aplica, desde cuándo."></textarea>
+      </div>
+
+      <div class="grid-2">
+        <div class="campo">
+          <label>Fecha requerida de respuesta</label>
+          <input type="date" />
+        </div>
+        <div class="campo">
+          <label>Prioridad</label>
+          <select>
+            <option>Normal</option>
+            <option>Alta</option>
+            <option>Crítica / Urgente</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Medio de respuesta preferido</label>
+        <select>
+          <option>Correo institucional</option>
+          <option>Teléfono</option>
+          <option>Reunión presencial/virtual</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Observaciones adicionales</label>
+        <textarea placeholder="Información complementaria que debamos tener en cuenta."></textarea>
+      </div>
+
+      <button type="button">Guardar / Enviar (ejemplo)</button><br />
+      <small>Este formulario es demostrativo. Puedes integrarlo a tu sistema o exportarlo a otra herramienta.</small>
+    </form>
+  </div>
+</body>
+</html>
