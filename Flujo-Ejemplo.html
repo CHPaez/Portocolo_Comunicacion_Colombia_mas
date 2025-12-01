@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Flujo Ejemplo – Gestión Humana</title>
+<style>
+    body { 
+        font-family: Arial, sans-serif; 
+        margin: 0; 
+        background: #f4faff; 
+    }
+
+    header {
+        background: #004b8d;
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+
+    h2 { color: #004b8d; }
+
+    .menu {
+        text-align: center;
+        margin-top: 25px;
+    }
+
+    .menu button {
+        padding: 15px 25px;
+        margin: 10px;
+        background: #0072c6;
+        color: white;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: .3s;
+    }
+
+    .menu button:hover {
+        background: #005a9e;
+        transform: scale(1.05);
+    }
+
+    /* Secciones */
+    .flow-section {
+        display: none;
+        max-width: 700px;
+        margin: 35px auto;
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .active { display: block; }
+
+    .step {
+        padding: 20px;
+        border-left: 5px solid #0072c6;
+        margin-bottom: 20px;
+        background: #eef7ff;
+        border-radius: 6px;
+        animation: fade .4s ease-in-out;
+    }
+
+    @keyframes fade {
+        from { opacity: 0; transform: translateY(15px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .next-btn {
+        float: right;
+        padding: 10px 20px;
+        background: #00a859;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 15px;
+        transition: .3s;
+    }
+
+    .next-btn:hover {
+        background: #007a44;
+    }
+
+    .back-btn {
+        padding: 10px 20px;
+        background: #555;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 15px;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Ejemplo – Flujo por Procesos</h1>
+</header>
+
+<div class="menu">
+    <button onclick="showFlow('contrato')">Flujo: Contratación</button>
+    <button onclick="showFlow('capacitacion')">Flujo: Capacitaciones</button>
+    <button onclick="showFlow('tramites')">Flujo: Trámites</button>
+</div>
+
+<!-- ------------------ FLUJO: CONTRATACIÓN ------------------ -->
+<div id="contrato" class="flow-section">
+
+    <h2>Flujo – Proceso de Contratación</h2>
+
+    <div class="step" id="cont-step1">
+        <h3>Paso 1: Registrar Solicitud</h3>
+        <p>El líder debe ingresar los datos del cargo solicitado.</p>
+        <button class="next-btn" onclick="nextStep('cont-step1','cont-step2')">Siguiente</button>
+    </div>
+
+    <div class="step" id="cont-step2" style="display:none;">
+        <h3>Paso 2: Validación por Gestión Humana</h3>
+        <p>El área revisa disponibilidad y autorizaciones.</p>
+        <button class="back-btn" onclick="nextStep('cont-step2','cont-step1')">Atrás</button>
+        <button class="next-btn" onclick="nextStep('cont-step2','cont-step3')">Siguiente</button>
+    </div>
+
+    <div class="step" id="cont-step3" style="display:none;">
+        <h3>Paso 3: Entrevista y Selección</h3>
+        <p>Se agenda entrevista, pruebas y elección del candidato.</p>
+        <button class="back-btn" onclick="nextStep('cont-step3','cont-step2')">Atrás</button>
+    </div>
+
+</div>
+
+<!-- ------------------ FLUJO: CAPACITACIONES ------------------ -->
+<div id="capacitacion" class="flow-section">
+
+    <h2>Flujo – Solicitud de Capacitación</h2>
+
+    <div class="step" id="cap-step1">
+        <h3>Paso 1: Diligenciar Formato</h3>
+        <p>El colaborador debe llenar el formato oficial.</p>
+        <button class="next-btn" onclick="nextStep('cap-step1','cap-step2')">Siguiente</button>
+    </div>
+
+    <div class="step" id="cap-step2" style="display:none;">
+        <h3>Paso 2: Envío y Revisión</h3>
+        <p>Enviar el formato y esperar validación.</p>
+        <button class="back-btn" onclick="nextStep('cap-step2','cap-step1')">Atrás</button>
+        <button class="next-btn" onclick="nextStep('cap-step2','cap-step3')">Siguiente</button>
+    </div>
+
+    <div class="step" id="cap-step3" style="display:none;">
+        <h3>Paso 3: Confirmación</h3>
+        <p>Gestión Humana confirma aprobación o fechas.</p>
+        <button class="back-btn" onclick="nextStep('cap-step3','cap-step2')">Atrás</button>
+    </div>
+
+</div>
+
+<!-- ------------------ FLUJO: TRÁMITES ------------------ -->
+<div id="tramites" class="flow-section">
+
+    <h2>Flujo – Trámites Administrativos</h2>
+
+    <div class="step" id="tra-step1">
+        <h3>Paso 1: Seleccionar Trámite</h3>
+        <p>Certificados, novedades, desprendibles, etc.</p>
+        <button class="next-btn" onclick="nextStep('tra-step1','tra-step2')">Siguiente</button>
+    </div>
+
+    <div class="step" id="tra-step2" style="display:none;">
+        <h3>Paso 2: Enviar Documentos</h3>
+        <p>Adjuntar soporte según el trámite solicitado.</p>
+        <button class="back-btn" onclick="nextStep('tra-step2','tra-step1')">Atrás</button>
+        <button class="next-btn" onclick="nextStep('tra-step2','tra-step3')">Siguiente</button>
+    </div>
+
+    <div class="step" id="tra-step3" style="display:none;">
+        <h3>Paso 3: Confirmación de Proceso</h3>
+        <p>Gestión Humana confirma el avance o finalización.</p>
+        <button class="back-btn" onclick="nextStep('tra-step3','tra-step2')">Atrás</button>
+    </div>
+
+</div>
+
+<script>
+function showFlow(id) {
+    document.querySelectorAll('.flow-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function nextStep(current, next) {
+    document.getElementById(current).style.display = 'none';
+    document.getElementById(next).style.display = 'block';
+}
+</script>
+
+</body>
+</html>
