@@ -129,15 +129,23 @@ function generarExcel(datos) {
   return new Blob([XLSX.write(wb, { bookType:"xlsx", type:"array" })]);
 }
 
-// ⭐ SUBE ARCHIVO A TRANSFER.SH
+// SUBE ARCHIVO A TRANSFER.SH - CORREGIDO
 async function subirATransfer(blob, nombre) {
-  const resp = await fetch("https://transfer.sh/" + nombre, {
-    method: "PUT",
-    body: blob
-  });
+    const formData = new FormData();
+    formData.append("file", blob, nombre);
 
-  return await resp.text(); // Devuelve el link directo
+    const resp = await fetch("https://transfer.sh/", {
+        method: "POST",
+        body: formData
+    });
+
+    if (!resp.ok) {
+        throw new Error("Error subiendo archivo: " + resp.status);
+    }
+
+    return await resp.text(); // devuelve el link público del archivo
 }
+
 
 // ⭐ GENERA Y ENVÍA TODO
 async function generarYEnviar() {
@@ -195,6 +203,7 @@ async function generarYEnviar() {
 
 </body>
 </html>
+
 
 
 
