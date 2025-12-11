@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Solicitud de contratación</title>
+  <title>Formulario - Solicitud de contratación</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -57,28 +57,29 @@
   <div class="wrapper">
     <h1>Solicitud de Contratación</h1>
 
-    <!-- ✔ FORMULARIO QUE SI ENVÍA CORRECTAMENTE SIN CORS -->
     <form action="https://formsubmit.co/el/bevoxi" method="POST">
 
-      <!-- Configuración del correo -->
-      <input type="hidden" name="_subject" value="📄 Nueva solicitud de contratación">
-      <input type="hidden" name="_template" value="table">
+      <!-- CONFIG FormSubmit -->
+      <input type="hidden" name="Canal" value="Formulario GitHub">
       <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_subject" value="Nueva solicitud de contratación - Colombia Más">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_next" value="https://chpaez.github.io/gracias.html">
 
       <label>Área solicitante</label>
-      <input type="text" name="Área solicitante" required>
+      <input type="text" name="Area_solicitante" required>
 
-      <label>Jefe inmediato</label>
-      <input type="text" name="Jefe inmediato" required>
+      <label>Nombre del jefe inmediato</label>
+      <input type="text" name="Nombre_jefe_inmediato" required>
 
-      <label>Correo del jefe</label>
-      <input type="email" name="Correo del jefe" required>
+      <label>Correo del jefe inmediato</label>
+      <input type="email" name="Correo_jefe_inmediato" required>
 
-      <label>Cargo solicitado</label>
-      <input type="text" name="Cargo solicitado" required>
+      <label>Cargo a contratar</label>
+      <input type="text" name="Cargo_a_contratar" required>
 
       <label>Tipo de contrato</label>
-      <select name="Tipo contrato" required>
+      <select name="Tipo_de_contrato" required>
         <option value="">Seleccione...</option>
         <option>Indefinido</option>
         <option>Término fijo</option>
@@ -87,10 +88,10 @@
       </select>
 
       <label>Fecha estimada de ingreso</label>
-      <input type="date" name="Fecha ingreso" required>
+      <input type="date" name="Fecha_estimada_ingreso" required>
 
       <label>Ciudad / Sede</label>
-      <input type="text" name="Ciudad / Sede" required>
+      <input type="text" name="Ciudad_Sede" required>
 
       <label>Jornada</label>
       <select name="Jornada" required>
@@ -100,8 +101,8 @@
         <option>Por turnos</option>
       </select>
 
-      <label>Motivo</label>
-      <select name="Motivo" required>
+      <label>Motivo de la solicitud</label>
+      <select name="Motivo_de_la_solicitud" required>
         <option value="">Seleccione...</option>
         <option>Cargo nuevo</option>
         <option>Reemplazo</option>
@@ -109,17 +110,15 @@
         <option>Otro</option>
       </select>
 
-      <label>Perfil del cargo</label>
-      <textarea name="Perfil del cargo" required></textarea>
+      <label>Perfil y funciones</label>
+      <textarea name="Perfil_y_funciones" required></textarea>
 
       <label>Observaciones adicionales</label>
-      <textarea name="Observaciones"></textarea>
+      <textarea name="Observaciones_adicionales"></textarea>
 
       <button type="submit">Enviar solicitud</button>
       <button type="reset" class="btn-secondary">Limpiar</button>
-
     </form>
-
   </div>
 </body>
 </html>
