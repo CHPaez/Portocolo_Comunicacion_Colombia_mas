@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Solicitud de apoyo en capacitaciones</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f3f5f7;
+      padding: 30px;
+    }
+    .wrapper {
+      max-width: 850px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #003a70;
+      margin-bottom: 5px;
+    }
+    p { color: #546e7a; font-size: 0.9rem; }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #cfd8dc;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+    textarea { min-height: 80px; }
+
+    button {
+      padding: 12px 20px;
+      background: #0052a5;
+      border: none;
+      color: #fff;
+      border-radius: 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn-secondary {
+      background: #e0eaf6;
+      color: #003a70;
+      margin-left: 10px;
+    }
+
+    #mensaje { margin-top: 10px; }
+    .success { color: green; font-weight: bold; }
+    .error { color: red; font-weight: bold; }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <h1>Solicitud de apoyo en capacitaciones</h1>
+    <p>Registra la información necesaria para planear la capacitación.</p>
+
+    <form id="formCapacitacion">
+
+      <label>Objetivo de la capacitación *</label>
+      <textarea id="objetivo" required></textarea>
+
+      <label>Población objetivo *</label>
+      <input type="text" id="poblacion" placeholder="Ej: Productores, administrativos..." required />
+
+      <label>Tema de la capacitación *</label>
+      <input type="text" id="tema" required />
+
+      <label>Fechas tentativas *</label>
+      <input type="text" id="fechas" placeholder="Ej: Semana del 10 al 14 de marzo" required />
+
+      <label>Modalidad *</label>
+      <select id="modalidad" required>
+        <option value="">Seleccione...</option>
+        <option>Virtual</option>
+        <option>Presencial</option>
+        <option>Híbrida</option>
+      </select>
+
+      <label>Duración estimada *</label>
+      <input type="text" id="duracion" placeholder="Ej: 2 horas, 1 día..." required />
+
+      <label>Lugar (solo si es presencial)</label>
+      <input type="text" id="lugar" placeholder="Ej: Oficina Bogotá, sala 3..." />
+
+      <label>¿Requiere apoyo logístico?</label>
+      <select id="logistica">
+        <option>No</option>
+        <option>Sí</option>
+      </select>
+
+      <label>Presupuesto estimado *</label>
+      <input type="number" id="presupuesto" placeholder="Ej: 500000" required />
+
+      <label>Observaciones adicionales</label>
+      <textarea id="obs"></textarea>
+
+      <button type="button" onclick="enviarCapacitacion()">Enviar solicitud</button>
+      <button type="reset" class="btn-secondary">Limpiar</button>
+
+      <p id="mensaje"></p>
+    </form>
+  </div>
+
+
+<script>
+async function enviarCapacitacion() {
+  const form = document.getElementById("formCapacitacion");
+  const msg = document.getElementById("mensaje");
+
+  if (!form.checkValidity()) {
+      msg.innerHTML = "<span class='error'>Completa todos los campos obligatorios.</span>";
+      form.reportValidity();
+      return;
+  }
+
+  msg.innerHTML = "Enviando...";
+
+  const datos = {
+    "Objetivo": document.getElementById("objetivo").value,
+    "Población objetivo": document.getElementById("poblacion").value,
+    "Tema": document.getElementById("tema").value,
+    "Fechas tentativas": document.getElementById("fechas").value,
+    "Modalidad": document.getElementById("modalidad").value,
+    "Duración estimada": document.getElementById("duracion").value,
+    "Lugar": document.getElementById("lugar").value,
+    "Apoyo logístico": document.getElementById("logistica").value,
+    "Presupuesto": document.getElementById("presupuesto").value,
+    "Observaciones": document.getElementById("obs").value,
+    "_subject": "🧩 Nueva Solicitud de Capacitación",
+    "_template": "table",
+    "_message": "Nueva solicitud registrada (sin archivos adjuntos)"
+  };
+
+  const resp = await fetch("https://formsubmit.co/ajax/cepb@hotmail.es", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos)
+  });
+
+  if (resp.ok) {
+    msg.innerHTML = "<span class='success'>✔ Solicitud enviada correctamente.</span>";
+    form.reset();
+  } else {
+    msg.innerHTML = "<span class='error'>❌ Error enviando la solicitud.</span>";
+  }
+}
+</script>
+
+</body>
+</html>
+
