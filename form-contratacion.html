@@ -148,7 +148,7 @@ async function subirAFileIO(blob, nombre) {
   const formData = new FormData();
   formData.append("file", blob, nombre);
 
-  const resp = await fetch("https://file.io/?expires=1w", {
+  const resp = await fetch("https://file.io?expires=1w", {
     method: "POST",
     body: formData
   });
@@ -247,6 +247,7 @@ async function generarYEnviar() {
 
 </body>
 </html>
+
 
 
 
