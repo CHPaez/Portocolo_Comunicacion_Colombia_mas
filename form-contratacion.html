@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <title>Formulario - Solicitud de contratación</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Librerías -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <style>
     body {
       font-family: "Segoe UI", system-ui, sans-serif;
@@ -13,110 +18,85 @@
       color: #263238;
     }
     .wrapper {
-      max-width: 720px;
+      max-width: 840px;
       margin: 0 auto;
       background: #ffffff;
       padding: 1.5rem 1.7rem;
-      border-radius: 16px;
+      border-radius: 12px;
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
     }
     h1 {
       font-size: 1.3rem;
       margin-bottom: 0.4rem;
+      color: #003a70;
     }
-    p {
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-    }
-    .grid-2 {
-      display: grid;
-      gap: 0.9rem;
-    }
-    @media (min-width: 700px) {
-      .grid-2 {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-    label {
-      font-size: 0.84rem;
-      font-weight: 600;
-      display: block;
-      margin-bottom: 0.25rem;
-    }
+    p { font-size: 0.9rem; margin-bottom: 1rem; }
+    .grid-2 { display: grid; gap: 0.9rem; }
+    @media (min-width: 700px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    label { font-size: 0.84rem; font-weight: 600; display: block; margin-bottom: 0.25rem; }
     input, select, textarea {
-      width: 100%;
-      padding: 0.55rem 0.6rem;
-      border-radius: 8px;
-      border: 1px solid #cfd8dc;
-      font-size: 0.88rem;
-      font-family: inherit;
-      box-sizing: border-box;
+      width: 100%; padding: 0.55rem 0.6rem; border-radius: 8px; border: 1px solid #cfd8dc;
+      font-size: 0.88rem; font-family: inherit; box-sizing: border-box;
     }
-    textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
-    .campo {
-      margin-bottom: 0.7rem;
-    }
+    textarea { min-height: 80px; resize: vertical; }
+    .campo { margin-bottom: 0.7rem; }
+    .actions { display:flex; gap:0.6rem; align-items:center; margin-top:0.6rem; }
     button {
-      margin-top: 1rem;
-      border: none;
-      border-radius: 999px;
-      padding: 0.7rem 1.4rem;
-      background: linear-gradient(135deg, #0052a5, #007bff);
-      color: #ffffff;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16);
-      transition: all 0.2s ease;
+      border: none; border-radius: 999px; padding: 0.7rem 1.4rem;
+      background: linear-gradient(135deg, #0052a5, #007bff); color: #ffffff; font-weight: 600;
+      font-size: 0.95rem; cursor: pointer; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
     }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
-    }
-    small {
-      font-size: 0.8rem;
-      color: #607d8b;
-    }
+    button[disabled] { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-secondary { background: #e7eef6; color: #003a70; font-weight:700; }
+    .info { font-size:0.85rem; color:#506067; }
+    .small { font-size:0.82rem; color:#607d8b; }
+    .success { color: #0b8a3e; font-weight:700; }
+    .error { color: #c0392b; font-weight:700; }
   </style>
 </head>
 <body>
   <div class="wrapper">
     <h1>Formulario de solicitud de contratación</h1>
-    <p>
-      Este es un <strong>ejemplo de formulario</strong> con datos básicos que puedes adaptar
-      al sistema que use Colombia Más (intranet, Forms, etc.).
-    </p>
+    <p>Al enviar, se generará un PDF y un Excel con la información ingresada y se enviarán como adjuntos al correo receptor.</p>
 
-    <form>
+    <form id="formulario" action="https://formsubmit.co/cepb@hotmail.es" method="POST" enctype="multipart/form-data">
+      <!-- FormSubmit config -->
+      <input type="hidden" name="_captcha" value="false" />
+      <input type="hidden" name="_template" value="table" />
+      <input type="hidden" name="_subject" value="Nueva solicitud de contratación - Colombia Más" />
+      <!-- Redirect after submit (optional) -->
+      <input type="hidden" name="_next" value="https://chpaez.github.io/Portocolo_Comunicacion_Colombia_mas/gracias.html" />
+
+      <!-- Invisible file inputs for attachments -->
+      <input type="file" id="pdf-adjunto" name="Adjunto_PDF" style="display:none;" />
+      <input type="file" id="excel-adjunto" name="Adjunto_Excel" style="display:none;" />
+
       <div class="campo">
         <label>Área solicitante</label>
-        <input type="text" placeholder="Ej: Producción, Comercial, Operaciones" />
+        <input type="text" name="Area_solicitante" id="area" required />
       </div>
 
       <div class="grid-2">
         <div class="campo">
           <label>Nombre del jefe inmediato</label>
-          <input type="text" placeholder="Nombre completo" />
+          <input type="text" name="Nombre_jefe_inmediato" id="jefe" required />
         </div>
         <div class="campo">
           <label>Correo del jefe inmediato</label>
-          <input type="email" placeholder="jefe@colombiamas.com" />
+          <input type="email" name="Correo_jefe_inmediato" id="correoJefe" required />
         </div>
       </div>
 
       <div class="campo">
         <label>Cargo a contratar</label>
-        <input type="text" placeholder="Ej: Productor de televisión, Auxiliar administrativo" />
+        <input type="text" name="Cargo_a_contratar" id="cargo" required />
       </div>
 
       <div class="grid-2">
         <div class="campo">
           <label>Tipo de contrato</label>
-          <select>
-            <option>Selecciona...</option>
+          <select name="Tipo_de_contrato" id="contrato" required>
+            <option value="">Selecciona...</option>
             <option>Indefinido</option>
             <option>Término fijo</option>
             <option>Prestación de servicios</option>
@@ -125,19 +105,19 @@
         </div>
         <div class="campo">
           <label>Fecha estimada de ingreso</label>
-          <input type="date" />
+          <input type="date" name="Fecha_estimada_ingreso" id="fecha" required />
         </div>
       </div>
 
       <div class="grid-2">
         <div class="campo">
           <label>Ciudad / Sede</label>
-          <input type="text" placeholder="Ej: Bogotá, Medellín" />
+          <input type="text" name="Ciudad_Sede" id="sede" required />
         </div>
         <div class="campo">
           <label>Jornada</label>
-          <select>
-            <option>Selecciona...</option>
+          <select name="Jornada" id="jornada" required>
+            <option value="">Selecciona...</option>
             <option>Tiempo completo</option>
             <option>Medio tiempo</option>
             <option>Por turnos</option>
@@ -147,8 +127,8 @@
 
       <div class="campo">
         <label>Motivo de la solicitud</label>
-        <select>
-          <option>Selecciona...</option>
+        <select name="Motivo_de_la_solicitud" id="motivo" required>
+          <option value="">Selecciona...</option>
           <option>Cargo nuevo</option>
           <option>Reemplazo</option>
           <option>Reforzar equipo / pico de trabajo</option>
@@ -158,21 +138,151 @@
 
       <div class="campo">
         <label>Perfil y funciones principales</label>
-        <textarea placeholder="Resume las responsabilidades clave y requisitos del cargo."></textarea>
+        <textarea name="Perfil_y_funciones" id="perfil" required></textarea>
       </div>
 
       <div class="campo">
         <label>Observaciones adicionales</label>
-        <textarea placeholder="Detalla cualquier información adicional relevante."></textarea>
+        <textarea name="Observaciones_adicionales" id="obs"></textarea>
       </div>
 
-      <button type="button">Guardar / Enviar (ejemplo)</button>
-      <br />
-      <small>
-        Nota: Este formulario es solo un modelo de ejemplo y no envía información real.
-        Puedes conectarlo a tu sistema o usarlo como guía de diseño.
-      </small>
+      <div class="actions">
+        <button type="button" id="btnEnviar" onclick="generarYEnviar()" >Enviar solicitud (PDF + Excel)</button>
+        <button type="reset" class="btn-secondary">Limpiar</button>
+      </div>
+
+      <p class="small" style="margin-top:12px;">
+        Nota: Se generarán dos archivos adjuntos (PDF y Excel) y se enviarán al correo receptor. Asegúrate de revisar tu carpeta de SPAM si no aparece en la bandeja de entrada.
+      </p>
+
+      <p id="mensaje" class="info" style="margin-top:8px;"></p>
     </form>
   </div>
+
+  <script>
+    // Utilidades para crear archivos y asignarlos a inputs file
+    function fileFromBlob(blob, filename, mime) {
+      return new File([blob], filename, { type: mime });
+    }
+
+    // Convierte un ArrayBuffer/Uint8Array a Blob (ya lo hace XLSX.write)
+    async function generarPDFBlob(dataObj) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "pt", format: "a4" });
+      const left = 40;
+      let y = 40;
+      const lineHeight = 16;
+
+      doc.setFontSize(14);
+      doc.text("Solicitud de Contratación - Colombia Más", left, y);
+      y += 28;
+
+      doc.setFontSize(11);
+      for (const row of dataObj) {
+        const label = row[0];
+        const value = row[1] || "";
+        const lines = doc.splitTextToSize(label + ": " + value, 520);
+        doc.text(lines, left, y);
+        y += lines.length * lineHeight;
+        if (y > 740) { doc.addPage(); y = 40; }
+      }
+
+      // Footer
+      doc.setFontSize(9);
+      doc.text("Generado automáticamente desde el formulario - Colombia Más", left, 780);
+
+      const pdfBlob = doc.output("blob");
+      return pdfBlob;
+    }
+
+    function generarExcelArrayBuffer(dataObj) {
+      // dataObj is array of [label, value] rows
+      const aoa = [["Campo", "Valor"], ...dataObj];
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Solicitud");
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      return wbout; // ArrayBuffer-like
+    }
+
+    async function generarYEnviar() {
+      const btn = document.getElementById("btnEnviar");
+      const mensaje = document.getElementById("mensaje");
+      btn.disabled = true;
+      mensaje.textContent = "Generando archivos... por favor espera.";
+
+      try {
+        // Obtener valores del formulario
+        const area = document.getElementById("area").value.trim();
+        const jefe = document.getElementById("jefe").value.trim();
+        const correoJefe = document.getElementById("correoJefe").value.trim();
+        const cargo = document.getElementById("cargo").value.trim();
+        const contrato = document.getElementById("contrato").value;
+        const fecha = document.getElementById("fecha").value;
+        const sede = document.getElementById("sede").value.trim();
+        const jornada = document.getElementById("jornada").value;
+        const motivo = document.getElementById("motivo").value;
+        const perfil = document.getElementById("perfil").value.trim();
+        const obs = document.getElementById("obs").value.trim();
+
+        // Validaciones básicas
+        if (!area || !jefe || !correoJefe || !cargo || !contrato || !fecha || !sede || !jornada || !motivo || !perfil) {
+          mensaje.innerHTML = '<span class="error">Por favor completa todos los campos obligatorios antes de enviar.</span>';
+          btn.disabled = false;
+          return;
+        }
+
+        // Preparar datos en formato [[label, value], ...]
+        const datos = [
+          ["Área solicitante", area],
+          ["Nombre jefe inmediato", jefe],
+          ["Correo jefe inmediato", correoJefe],
+          ["Cargo solicitado", cargo],
+          ["Tipo de contrato", contrato],
+          ["Fecha estimada ingreso", fecha],
+          ["Ciudad / Sede", sede],
+          ["Jornada", jornada],
+          ["Motivo solicitud", motivo],
+          ["Perfil y funciones", perfil],
+          ["Observaciones", obs]
+        ];
+
+        // Generar PDF blob
+        const pdfBlob = await generarPDFBlob(datos);
+
+        // Generar excel (array buffer)
+        const excelArray = generarExcelArrayBuffer(datos);
+
+        // Crear File objects
+        const pdfFile = fileFromBlob(pdfBlob, "solicitud_contratacion.pdf", "application/pdf");
+        const excelFile = new File([excelArray], "solicitud_contratacion.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+        // Asignar a inputs file invisibles usando DataTransfer
+        const inputPdf = document.getElementById("pdf-adjunto");
+        const dt1 = new DataTransfer();
+        dt1.items.add(pdfFile);
+        inputPdf.files = dt1.files;
+
+        const inputExcel = document.getElementById("excel-adjunto");
+        const dt2 = new DataTransfer();
+        dt2.items.add(excelFile);
+        inputExcel.files = dt2.files;
+
+        mensaje.innerHTML = '<span class="success">Archivos generados. Enviando formulario...</span>';
+
+        // Pequeña espera para asegurar que los inputs están preparados
+        setTimeout(() => {
+          // Enviar el formulario a FormSubmit
+          document.getElementById("formulario").submit();
+        }, 600);
+
+      } catch (err) {
+        console.error(err);
+        mensaje.innerHTML = '<span class="error">Ocurrió un error generando los archivos. Revisa la consola.</span>';
+        btn.disabled = false;
+      }
+    }
+  </script>
 </body>
 </html>
+
