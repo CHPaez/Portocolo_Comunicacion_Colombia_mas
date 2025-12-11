@@ -1,331 +1,174 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <title>Solicitud de Contratación — GitHub Releases</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <!-- Librerías -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Solicitud de contratación</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    body { font-family: "Segoe UI", system-ui, sans-serif; background:#f3f5f7; margin:0; padding:20px; color:#263238; }
-    .card { max-width:920px; margin:20px auto; background:#fff; padding:22px; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,0.08); }
-    h1 { color:#003a70; margin:0 0 8px 0; }
-    label { display:block; font-weight:600; margin-top:10px; }
-    input, select, textarea { width:100%; padding:10px; border-radius:8px; border:1px solid #cfd8dc; margin-top:6px; box-sizing:border-box; }
-    textarea { min-height:90px; resize:vertical; }
-    .grid-2 { display:grid; gap:12px; grid-template-columns: 1fr 1fr; }
-    .actions { margin-top:16px; display:flex; gap:10px; align-items:center; }
-    button { padding:10px 16px; border-radius:10px; border:none; background:linear-gradient(135deg,#0052a5,#007bff); color:white; font-weight:700; cursor:pointer; }
-    .btn-secondary { background:#e7eef6; color:#003a70; border:1px solid #cce0ff; }
-    .mensaje { margin-top:14px; font-size:0.95rem; }
-    .spinner { display:inline-block; width:18px; height:18px; border:3px solid #eee; border-top:3px solid #007bff; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    a.link { color:#0052a5; text-decoration:underline; }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f3f5f7;
+      padding: 30px;
+    }
+    .wrapper {
+      max-width: 850px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #003a70;
+      margin-bottom: 5px;
+    }
+    p {
+      color: #546e7a;
+      font-size: 0.9rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #cfd8dc;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+    textarea { min-height: 80px; }
+    button {
+      padding: 12px 20px;
+      background: #0052a5;
+      border: none;
+      color: #fff;
+      border-radius: 30px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background: #e0eaf6;
+      color: #003a70;
+    }
+    #mensaje {
+      margin-top: 10px;
+    }
+    .success { color: green; font-weight: bold; }
+    .error { color: red; font-weight: bold; }
   </style>
 </head>
+
 <body>
-  <div class="card">
+  <div class="wrapper">
     <h1>Solicitud de Contratación</h1>
-    <p>Completa el formulario y se generarán PDF y Excel. Los archivos se subirán al <strong>release</strong> <code>uploads</code> en tu repositorio y te llegará un correo con los enlaces.</p>
+    <p>Envía una solicitud de contratación. Este demo no genera archivos.</p>
 
-    <form id="formulario" onsubmit="return false;">
-      <div class="campo">
-        <label>Área solicitante</label>
-        <input id="area" required />
-      </div>
+    <form id="formulario">
+      <label>Área solicitante</label>
+      <input type="text" id="area" required />
 
-      <div class="grid-2">
-        <div>
-          <label>Nombre del jefe inmediato</label>
-          <input id="jefe" required />
-        </div>
-        <div>
-          <label>Correo del jefe inmediato</label>
-          <input id="correoJefe" type="email" required />
-        </div>
-      </div>
+      <label>Jefe inmediato</label>
+      <input type="text" id="jefe" required />
 
-      <div class="campo">
-        <label>Cargo a contratar</label>
-        <input id="cargo" required />
-      </div>
+      <label>Correo del jefe</label>
+      <input type="email" id="correoJefe" required />
 
-      <div class="grid-2">
-        <div>
-          <label>Tipo de contrato</label>
-          <select id="contrato" required>
-            <option value="">Selecciona...</option>
-            <option>Indefinido</option>
-            <option>Término fijo</option>
-            <option>Prestación de servicios</option>
-            <option>Temporal / Reemplazo</option>
-          </select>
-        </div>
-        <div>
-          <label>Fecha estimada de ingreso</label>
-          <input id="fecha" type="date" required />
-        </div>
-      </div>
+      <label>Cargo solicitado</label>
+      <input type="text" id="cargo" required />
 
-      <div class="grid-2">
-        <div>
-          <label>Ciudad / Sede</label>
-          <input id="sede" required />
-        </div>
-        <div>
-          <label>Jornada</label>
-          <select id="jornada" required>
-            <option value="">Selecciona...</option>
-            <option>Tiempo completo</option>
-            <option>Medio tiempo</option>
-            <option>Por turnos</option>
-          </select>
-        </div>
-      </div>
+      <label>Tipo de contrato</label>
+      <select id="contrato" required>
+        <option value="">Seleccione...</option>
+        <option>Indefinido</option>
+        <option>Término fijo</option>
+        <option>Prestación de servicios</option>
+        <option>Temporal / Reemplazo</option>
+      </select>
 
-      <div class="campo">
-        <label>Motivo de la solicitud</label>
-        <select id="motivo" required>
-          <option value="">Selecciona...</option>
-          <option>Cargo nuevo</option>
-          <option>Reemplazo</option>
-          <option>Reforzar equipo / pico de trabajo</option>
-          <option>Otro</option>
-        </select>
-      </div>
+      <label>Fecha estimada de ingreso</label>
+      <input type="date" id="fecha" required />
 
-      <div class="campo">
-        <label>Perfil y funciones principales</label>
-        <textarea id="perfil" required></textarea>
-      </div>
+      <label>Ciudad / Sede</label>
+      <input type="text" id="sede" required />
 
-      <div class="campo">
-        <label>Observaciones adicionales</label>
-        <textarea id="obs"></textarea>
-      </div>
+      <label>Jornada</label>
+      <select id="jornada" required>
+        <option value="">Seleccione...</option>
+        <option>Tiempo completo</option>
+        <option>Medio tiempo</option>
+        <option>Por turnos</option>
+      </select>
 
-      <div class="actions">
-        <button id="btnEnviar" onclick="generarYEnviar()">Enviar solicitud</button>
-        <button type="reset" class="btn-secondary">Limpiar</button>
-      </div>
+      <label>Motivo</label>
+      <select id="motivo" required>
+        <option value="">Seleccione...</option>
+        <option>Cargo nuevo</option>
+        <option>Reemplazo</option>
+        <option>Refuerzo / pico de trabajo</option>
+        <option>Otro</option>
+      </select>
+
+      <label>Perfil del cargo</label>
+      <textarea id="perfil" required></textarea>
+
+      <label>Observaciones adicionales</label>
+      <textarea id="obs"></textarea>
+
+      <button type="button" onclick="enviar()">Enviar solicitud</button>
+      <button type="reset" class="btn-secondary">Limpiar</button>
+
+      <p id="mensaje"></p>
     </form>
-
-    <div id="mensaje" class="mensaje"></div>
   </div>
 
 <script>
-/*
-  CONFIGURA AQUÍ (NO PUBLIQUES TU TOKEN REAL):
-  Reemplaza los '********' por la parte oculta en tu copia local.
-*/
-const OWNER = "CHPaez";
-const REPO = "Portocolo_Comunicacion_Colombia_mas";
-const RELEASE_TAG = "uploads";
-// Token enmascarado: tú reemplazas ****** por la parte real en local
-const TOKEN = "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";
+async function enviar() {
+  const form = document.getElementById("formulario");
+  const msg = document.getElementById("mensaje");
 
-// Helpers para UI
-function setMensaje(html) { document.getElementById("mensaje").innerHTML = html; }
-function spinnerText(text) { return `<span class="spinner"></span> ${text}`; }
-
-// Genera nombre de archivo único
-function nombreArchivo(ext) {
-  const now = new Date();
-  const pad = n => String(n).padStart(2,'0');
-  const fecha = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-  return `solicitud_${fecha}.${ext}`;
-}
-
-/* ------------------ PDF y EXCEL ------------------ */
-async function generarPDF(datos) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: "pt", format: "a4" });
-  let y = 40;
-  doc.setFontSize(16);
-  doc.setTextColor(0,58,112);
-  doc.text("SOLICITUD DE CONTRATACIÓN - Colombia Más", 40, y);
-  y += 24;
-  doc.setFontSize(11);
-  doc.setTextColor(0,0,0);
-  datos.forEach(([label, val]) => {
-    doc.setFont("helvetica","bold");
-    doc.text(label + ":", 40, y);
-    doc.setFont("helvetica","normal");
-    const lines = doc.splitTextToSize(val || "", 430);
-    doc.text(lines, 140, y);
-    y += lines.length * 14;
-    if (y > 720) { doc.addPage(); y = 40; }
-  });
-  // fecha
-  doc.setFontSize(9);
-  doc.setTextColor(100,100,100);
-  doc.text("Generado: " + new Date().toLocaleString(), 40, y + 20);
-  return doc.output("blob");
-}
-
-function generarExcel(datos) {
-  const clean = datos.map(([c,v]) => [c, v==null ? "" : v.toString()]);
-  const ws = XLSX.utils.aoa_to_sheet([["Campo","Valor"], ...clean]);
-  ws['!cols'] = [{wch:30},{wch:80}];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Solicitud");
-  return new Blob([XLSX.write(wb, { bookType:"xlsx", type:"array" })], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-}
-
-/* ------------- GitHub Releases: crear / obtener release ------------- */
-
-async function obtenerOCrearRelease() {
-  const headers = { "Accept": "application/vnd.github.v3+json", "Authorization": `Bearer ${TOKEN}` };
-  // 1) intentar obtener release por tag
-  let res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/tags/${RELEASE_TAG}`, { headers });
-  if (res.ok) {
-    return res.json();
+  if (!form.checkValidity()) {
+      msg.innerHTML = "<span class='error'>Completa todos los campos obligatorios.</span>";
+      form.reportValidity();
+      return;
   }
-  // 2) si 404 => crear release
-  if (res.status === 404) {
-    const body = {
-      tag_name: RELEASE_TAG,
-      name: RELEASE_TAG,
-      draft: false,
-      prerelease: false
-    };
-    res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases`, {
-      method: "POST",
-      headers: Object.assign({ "Content-Type": "application/json" }, headers),
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error("No se pudo crear release: " + res.status + " - " + text);
-    }
-    return res.json();
-  }
-  // otros errores
-  const txt = await res.text();
-  throw new Error("Error al obtener release: " + res.status + " - " + txt);
-}
 
-/* ------------- Subir asset al release (uploads.github.com) ------------- */
-async function subirAssetARelease(releaseId, filename, blob, contentType) {
-  // uploads endpoint
-  const uploadUrl = `https://uploads.github.com/repos/${OWNER}/${REPO}/releases/${releaseId}/assets?name=${encodeURIComponent(filename)}`;
-  const resp = await fetch(uploadUrl, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${TOKEN}`,
-      "Content-Type": contentType
-    },
-    body: blob
-  });
-  if (!resp.ok) {
-    const txt = await resp.text();
-    throw new Error("Error subiendo asset: " + resp.status + " - " + txt);
-  }
-  return resp.json(); // contiene browser_download_url
-}
+  msg.innerHTML = "Enviando...";
 
-/* ------------------ Envío final por FormSubmit ------------------ */
-async function enviarCorreoConLinks(dataForEmail) {
-  // dataForEmail: object con campos que deseas enviar
+  const datos = {
+    "Área solicitante": document.getElementById("area").value,
+    "Jefe inmediato": document.getElementById("jefe").value,
+    "Correo del jefe": document.getElementById("correoJefe").value,
+    "Cargo solicitado": document.getElementById("cargo").value,
+    "Tipo contrato": document.getElementById("contrato").value,
+    "Fecha estimada ingreso": document.getElementById("fecha").value,
+    "Ciudad / Sede": document.getElementById("sede").value,
+    "Jornada": document.getElementById("jornada").value,
+    "Motivo": document.getElementById("motivo").value,
+    "Perfil del cargo": document.getElementById("perfil").value,
+    "Observaciones": document.getElementById("obs").value,
+    "_subject": "📄 Nueva solicitud de contratación",
+    "_template": "table",
+    "_message": "Nueva solicitud registrada (demo sin archivos)"
+  };
+
   const resp = await fetch("https://formsubmit.co/ajax/cepb@hotmail.es", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
-    body: JSON.stringify(dataForEmail)
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos)
   });
-  if (!resp.ok) {
-    const txt = await resp.text();
-    throw new Error("Error enviando correo: " + resp.status + " - " + txt);
-  }
-  return resp.json();
-}
 
-/* ------------------ Flujo principal ------------------ */
-async function generarYEnviar() {
-  const btn = document.getElementById("btnEnviar");
-  try {
-    btn.disabled = true;
-    setMensaje(spinnerText("Validando formulario..."));
-    const form = document.getElementById("formulario");
-    if (!form.checkValidity()) { form.reportValidity(); setMensaje("<span class='error'>Completa los campos obligatorios</span>"); btn.disabled = false; return; }
-
-    // Recolectar datos
-    const datos = [
-      ["Área solicitante", document.getElementById("area").value.trim()],
-      ["Jefe inmediato", document.getElementById("jefe").value.trim()],
-      ["Correo jefe", document.getElementById("correoJefe").value.trim()],
-      ["Cargo solicitado", document.getElementById("cargo").value.trim()],
-      ["Tipo de contrato", document.getElementById("contrato").value],
-      ["Fecha ingreso", document.getElementById("fecha").value],
-      ["Ciudad / Sede", document.getElementById("sede").value.trim()],
-      ["Jornada", document.getElementById("jornada").value],
-      ["Motivo", document.getElementById("motivo").value],
-      ["Perfil", document.getElementById("perfil").value.trim()],
-      ["Observaciones", document.getElementById("obs").value.trim()]
-    ];
-
-    setMensaje(spinnerText("Generando PDF..."));
-    const pdfBlob = await generarPDF(datos);
-
-    setMensaje(spinnerText("Generando Excel..."));
-    const excelBlob = generarExcel(datos);
-
-    // Obtener o crear release
-    setMensaje(spinnerText("Comprobando release 'uploads'..."));
-    const release = await obtenerOCrearRelease();
-    const releaseId = release.id;
-    if (!releaseId) throw new Error("No se obtuvo releaseId");
-
-    // Subir assets con nombres automáticos
-    const nombrePDF = nombreArchivo("pdf");
-    const nombreXLSX = nombreArchivo("xlsx");
-
-    setMensaje(spinnerText("Subiendo PDF al release..."));
-    const respPdf = await subirAssetARelease(releaseId, nombrePDF, pdfBlob, "application/pdf");
-    const urlPdf = respPdf.browser_download_url;
-
-    setMensaje(spinnerText("Subiendo Excel al release..."));
-    const respXlsx = await subirAssetARelease(releaseId, nombreXLSX, excelBlob, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    const urlXlsx = respXlsx.browser_download_url;
-
-    // Preparar datos para correo
-    setMensaje(spinnerText("Enviando correo con los enlaces..."));
-    const emailBody = {
-      _subject: "📄 Nueva solicitud de contratación",
-      _template: "table",
-      "Área solicitante": datos[0][1],
-      "Jefe inmediato": datos[1][1],
-      "Correo jefe": datos[2][1],
-      "Cargo solicitado": datos[3][1],
-      "Tipo de contrato": datos[4][1],
-      "Fecha estimada ingreso": datos[5][1],
-      "Enlace PDF": urlPdf,
-      "Enlace Excel": urlXlsx,
-      _message: `Se generó una nueva solicitud para ${datos[0][1]}. PDF: ${urlPdf}  Excel: ${urlXlsx}`
-    };
-
-    await enviarCorreoConLinks(emailBody);
-
-    setMensaje(`
-      <span class="success">
-        ✅ ¡Solicitud enviada con éxito!<br><br>
-        • <a class="link" href="${urlPdf}" target="_blank">Descargar PDF</a><br>
-        • <a class="link" href="${urlXlsx}" target="_blank">Descargar Excel</a>
-      </span>
-    `);
-
-    // limpiar formulario
-    setTimeout(() => { document.getElementById("formulario").reset(); }, 2500);
-
-  } catch (err) {
-    console.error("Error en flujo:", err);
-    setMensaje(`<span class="error">❌ Ocurrió un error: ${err.message}</span>`);
-  } finally {
-    btn.disabled = false;
+  if (resp.ok) {
+    msg.innerHTML = "<span class='success'>✔ Solicitud enviada correctamente.</span>";
+    form.reset();
+  } else {
+    msg.innerHTML = "<span class='error'>❌ Error enviando la solicitud.</span>";
   }
 }
 </script>
+
 </body>
 </html>
-
