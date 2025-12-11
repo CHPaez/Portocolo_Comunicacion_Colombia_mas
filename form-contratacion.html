@@ -1,212 +1,174 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Solicitud de Contratación - Colombia Más</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Solicitud de contratación</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<!-- Librerías -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<style>
-  body { font-family: "Segoe UI"; background: #f3f6f9; padding: 30px; }
-  .contenedor {
-    max-width: 850px; background: white; padding: 25px;
-    border-radius: 12px; margin: auto;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  }
-  h1 { color: #004a99; margin-bottom: 5px; }
-  label { font-weight: 600; display:block; margin-top: 10px; }
-  input, select, textarea {
-    width:100%; padding:10px; border-radius:8px;
-    border:1px solid #ced4da; margin-top: 4px;
-  }
-  button {
-    margin-top:18px; padding:12px 20px; border:0;
-    background:#0078ff; color:white; font-weight:700;
-    border-radius:8px; cursor:pointer;
-  }
-  .mensaje { margin-top:15px; font-size:15px; }
-</style>
-
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f3f5f7;
+      padding: 30px;
+    }
+    .wrapper {
+      max-width: 850px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #003a70;
+      margin-bottom: 5px;
+    }
+    p {
+      color: #546e7a;
+      font-size: 0.9rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #cfd8dc;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+    textarea { min-height: 80px; }
+    button {
+      padding: 12px 20px;
+      background: #0052a5;
+      border: none;
+      color: #fff;
+      border-radius: 30px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background: #e0eaf6;
+      color: #003a70;
+    }
+    #mensaje {
+      margin-top: 10px;
+    }
+    .success { color: green; font-weight: bold; }
+    .error { color: red; font-weight: bold; }
+  </style>
 </head>
+
 <body>
+  <div class="wrapper">
+    <h1>Solicitud de Contratación</h1>
+    <p>Envía una solicitud de contratación. Este demo no genera archivos.</p>
 
-<div class="contenedor">
-  <h1>Solicitud de Contratación</h1>
-  <p>Se generará un PDF y Excel, se subirán automáticamente y se enviará un correo con los enlaces.</p>
+    <form id="formulario">
+      <label>Área solicitante</label>
+      <input type="text" id="area" required />
 
-  <form id="formulario">
+      <label>Jefe inmediato</label>
+      <input type="text" id="jefe" required />
 
-    <label>Área solicitante</label>
-    <input id="area" required>
+      <label>Correo del jefe</label>
+      <input type="email" id="correoJefe" required />
 
-    <label>Jefe inmediato</label>
-    <input id="jefe" required>
+      <label>Cargo solicitado</label>
+      <input type="text" id="cargo" required />
 
-    <label>Correo jefe inmediato</label>
-    <input id="correoJefe" type="email" required>
+      <label>Tipo de contrato</label>
+      <select id="contrato" required>
+        <option value="">Seleccione...</option>
+        <option>Indefinido</option>
+        <option>Término fijo</option>
+        <option>Prestación de servicios</option>
+        <option>Temporal / Reemplazo</option>
+      </select>
 
-    <label>Cargo solicitado</label>
-    <input id="cargo" required>
+      <label>Fecha estimada de ingreso</label>
+      <input type="date" id="fecha" required />
 
-    <label>Tipo de contrato</label>
-    <select id="contrato" required>
-      <option value="">Selecciona...</option>
-      <option>Indefinido</option>
-      <option>Término fijo</option>
-      <option>Prestación de servicios</option>
-    </select>
+      <label>Ciudad / Sede</label>
+      <input type="text" id="sede" required />
 
-    <label>Fecha estimada ingreso</label>
-    <input type="date" id="fecha" required>
+      <label>Jornada</label>
+      <select id="jornada" required>
+        <option value="">Seleccione...</option>
+        <option>Tiempo completo</option>
+        <option>Medio tiempo</option>
+        <option>Por turnos</option>
+      </select>
 
-    <label>Ciudad / Sede</label>
-    <input id="sede" required>
+      <label>Motivo</label>
+      <select id="motivo" required>
+        <option value="">Seleccione...</option>
+        <option>Cargo nuevo</option>
+        <option>Reemplazo</option>
+        <option>Refuerzo / pico de trabajo</option>
+        <option>Otro</option>
+      </select>
 
-    <label>Jornada</label>
-    <select id="jornada" required>
-      <option value="">Selecciona...</option>
-      <option>Tiempo completo</option>
-      <option>Medio tiempo</option>
-      <option>Turnos</option>
-    </select>
+      <label>Perfil del cargo</label>
+      <textarea id="perfil" required></textarea>
 
-    <label>Motivo</label>
-    <input id="motivo" required>
+      <label>Observaciones adicionales</label>
+      <textarea id="obs"></textarea>
 
-    <label>Perfil requerido</label>
-    <textarea id="perfil" required></textarea>
+      <button type="button" onclick="enviar()">Enviar solicitud</button>
+      <button type="reset" class="btn-secondary">Limpiar</button>
 
-    <label>Observaciones</label>
-    <textarea id="obs"></textarea>
-
-    <button type="button" onclick="generarYEnviar()">Enviar Solicitud</button>
-
-  </form>
-
-  <div class="mensaje" id="mensaje"></div>
-</div>
+      <p id="mensaje"></p>
+    </form>
+  </div>
 
 <script>
-// ⭐ GENERA NOMBRE DE ARCHIVO AUTOMÁTICO
-function nombreArchivo(ext) {
-  const f = new Date();
-  const fecha =
-    f.getFullYear() + "-" +
-    String(f.getMonth()+1).padStart(2,"0") + "-" +
-    String(f.getDate()).padStart(2,"0") + "_" +
-    String(f.getHours()).padStart(2,"0") + "-" +
-    String(f.getMinutes()).padStart(2,"0") + "-" +
-    String(f.getSeconds()).padStart(2,"0");
-  return `solicitud_${fecha}.${ext}`;
-}
-
-// ⭐ GENERA PDF
-async function generarPDF(datos) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  let y = 15;
-  doc.setFontSize(14);
-  doc.text("Solicitud de Contratación - Colombia Más", 10, y);
-  y += 10;
-  doc.setFontSize(10);
-
-  datos.forEach(([campo, valor]) => {
-    doc.text(`${campo}: ${valor}`, 10, y);
-    y += 7;
-  });
-
-  return doc.output("blob");
-}
-
-// ⭐ GENERA EXCEL
-function generarExcel(datos) {
-  const ws = XLSX.utils.aoa_to_sheet([["Campo","Valor"], ...datos]);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Solicitud");
-  return new Blob([XLSX.write(wb, { bookType:"xlsx", type:"array" })]);
-}
-
-// SUBE ARCHIVO A TRANSFER.SH - CORREGIDO
-async function subirATransfer(blob, nombre) {
-    const formData = new FormData();
-    formData.append("file", blob, nombre);
-
-    const resp = await fetch("https://transfer.sh/", {
-        method: "POST",
-        body: formData
-    });
-
-    if (!resp.ok) {
-        throw new Error("Error subiendo archivo: " + resp.status);
-    }
-
-    return await resp.text(); // devuelve el link público del archivo
-}
-
-
-// ⭐ GENERA Y ENVÍA TODO
-async function generarYEnviar() {
+async function enviar() {
+  const form = document.getElementById("formulario");
   const msg = document.getElementById("mensaje");
-  msg.innerHTML = "Generando archivos…";
 
-  const datos = [
-    ["Área solicitante", area.value],
-    ["Jefe inmediato", jefe.value],
-    ["Correo jefe", correoJefe.value],
-    ["Cargo", cargo.value],
-    ["Contrato", contrato.value],
-    ["Fecha ingreso", fecha.value],
-    ["Sede", sede.value],
-    ["Jornada", jornada.value],
-    ["Motivo", motivo.value],
-    ["Perfil", perfil.value],
-    ["Observaciones", obs.value]
-  ];
+  if (!form.checkValidity()) {
+      msg.innerHTML = "<span class='error'>Completa todos los campos obligatorios.</span>";
+      form.reportValidity();
+      return;
+  }
 
-  // Generar archivos
-  const pdfBlob = await generarPDF(datos);
-  const excelBlob = generarExcel(datos);
+  msg.innerHTML = "Enviando...";
 
-  const pdfName = nombreArchivo("pdf");
-  const excelName = nombreArchivo("xlsx");
+  const datos = {
+    "Área solicitante": document.getElementById("area").value,
+    "Jefe inmediato": document.getElementById("jefe").value,
+    "Correo del jefe": document.getElementById("correoJefe").value,
+    "Cargo solicitado": document.getElementById("cargo").value,
+    "Tipo contrato": document.getElementById("contrato").value,
+    "Fecha estimada ingreso": document.getElementById("fecha").value,
+    "Ciudad / Sede": document.getElementById("sede").value,
+    "Jornada": document.getElementById("jornada").value,
+    "Motivo": document.getElementById("motivo").value,
+    "Perfil del cargo": document.getElementById("perfil").value,
+    "Observaciones": document.getElementById("obs").value,
+    "_subject": "📄 Nueva solicitud de contratación",
+    "_template": "table",
+    "_message": "Nueva solicitud registrada (demo sin archivos)"
+  };
 
-  msg.innerHTML = "Subiendo archivos…";
-
-  // Subir archivos
-  const urlPDF = await subirATransfer(pdfBlob, pdfName);
-  const urlExcel = await subirATransfer(excelBlob, excelName);
-
-  msg.innerHTML = "Enviando correo…";
-
-  // Enviar correo con FormSubmit
-  await fetch("https://formsubmit.co/ajax/cepb@hotmail.es", {
+  const resp = await fetch("https://formsubmit.co/ajax/cepb@hotmail.es", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      asunto: "Nueva solicitud de contratación",
-      pdf: urlPDF,
-      excel: urlExcel
-    })
+    body: JSON.stringify(datos)
   });
 
-  msg.innerHTML = `
-    <span style="color:green;font-weight:700">
-      Solicitud enviada correctamente.<br><br>
-      <a href="${urlPDF}" target="_blank">📄 Descargar PDF</a><br>
-      <a href="${urlExcel}" target="_blank">📊 Descargar Excel</a>
-    </span>`;
+  if (resp.ok) {
+    msg.innerHTML = "<span class='success'>✔ Solicitud enviada correctamente.</span>";
+    form.reset();
+  } else {
+    msg.innerHTML = "<span class='error'>❌ Error enviando la solicitud.</span>";
+  }
 }
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
