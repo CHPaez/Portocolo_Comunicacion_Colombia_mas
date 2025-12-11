@@ -1,107 +1,331 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Formulario - Apoyo de capacitaciones</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <title>Solicitud de Contratación — GitHub Releases</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Librerías -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <style>
-    body { font-family: "Segoe UI", system-ui, sans-serif; background: #f3f5f7; margin: 0; padding: 1.5rem; color: #263238; }
-    .wrapper {
-      max-width: 720px;
-      margin: 0 auto;
-      background: #ffffff;
-      padding: 1.5rem 1.7rem;
-      border-radius: 16px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
-    }
-    h1 { font-size: 1.3rem; margin-bottom: 0.4rem; }
-    p { font-size: 0.9rem; margin-bottom: 1rem; }
-    .grid-2 { display: grid; gap: 0.9rem; }
-    @media (min-width: 700px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
-    label { font-size: 0.84rem; font-weight: 600; display: block; margin-bottom: 0.25rem; }
-    input, select, textarea {
-      width: 100%; padding: 0.55rem 0.6rem; border-radius: 8px; border: 1px solid #cfd8dc;
-      font-size: 0.88rem; font-family: inherit; box-sizing: border-box;
-    }
-    textarea { min-height: 80px; resize: vertical; }
-    .campo { margin-bottom: 0.7rem; }
-    button {
-      margin-top: 1rem; border: none; border-radius: 999px; padding: 0.7rem 1.4rem;
-      background: linear-gradient(135deg, #00897b, #00b894); color: #ffffff;
-      font-weight: 600; font-size: 0.9rem; cursor: pointer;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16); transition: all 0.2s ease;
-    }
-    button:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18); }
-    small { font-size: 0.8rem; color: #607d8b; }
+    body { font-family: "Segoe UI", system-ui, sans-serif; background:#f3f5f7; margin:0; padding:20px; color:#263238; }
+    .card { max-width:920px; margin:20px auto; background:#fff; padding:22px; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,0.08); }
+    h1 { color:#003a70; margin:0 0 8px 0; }
+    label { display:block; font-weight:600; margin-top:10px; }
+    input, select, textarea { width:100%; padding:10px; border-radius:8px; border:1px solid #cfd8dc; margin-top:6px; box-sizing:border-box; }
+    textarea { min-height:90px; resize:vertical; }
+    .grid-2 { display:grid; gap:12px; grid-template-columns: 1fr 1fr; }
+    .actions { margin-top:16px; display:flex; gap:10px; align-items:center; }
+    button { padding:10px 16px; border-radius:10px; border:none; background:linear-gradient(135deg,#0052a5,#007bff); color:white; font-weight:700; cursor:pointer; }
+    .btn-secondary { background:#e7eef6; color:#003a70; border:1px solid #cce0ff; }
+    .mensaje { margin-top:14px; font-size:0.95rem; }
+    .spinner { display:inline-block; width:18px; height:18px; border:3px solid #eee; border-top:3px solid #007bff; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    a.link { color:#0052a5; text-decoration:underline; }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <h1>Formulario de apoyo a capacitaciones</h1>
-    <p>Ejemplo de formulario para registrar necesidades de formación de las áreas.</p>
+  <div class="card">
+    <h1>Solicitud de Contratación</h1>
+    <p>Completa el formulario y se generarán PDF y Excel. Los archivos se subirán al <strong>release</strong> <code>uploads</code> en tu repositorio y te llegará un correo con los enlaces.</p>
 
-    <form>
+    <form id="formulario" onsubmit="return false;">
+      <div class="campo">
+        <label>Área solicitante</label>
+        <input id="area" required />
+      </div>
+
       <div class="grid-2">
-        <div class="campo">
-          <label>Nombre del solicitante</label>
-          <input type="text" placeholder="Nombre completo" />
+        <div>
+          <label>Nombre del jefe inmediato</label>
+          <input id="jefe" required />
         </div>
-        <div class="campo">
-          <label>Área / Dependencia</label>
-          <input type="text" placeholder="Ej: Noticias, Producción, Comercial" />
+        <div>
+          <label>Correo del jefe inmediato</label>
+          <input id="correoJefe" type="email" required />
         </div>
       </div>
 
       <div class="campo">
-        <label>Tema o nombre de la capacitación</label>
-        <input type="text" placeholder="Ej: Manejo de cámaras, Atención al cliente, Liderazgo" />
-      </div>
-
-      <div class="campo">
-        <label>Objetivo de la capacitación</label>
-        <textarea placeholder="Describe el objetivo principal y la necesidad que se busca cubrir."></textarea>
+        <label>Cargo a contratar</label>
+        <input id="cargo" required />
       </div>
 
       <div class="grid-2">
-        <div class="campo">
-          <label>Número aproximado de participantes</label>
-          <input type="number" min="1" placeholder="Ej: 15" />
+        <div>
+          <label>Tipo de contrato</label>
+          <select id="contrato" required>
+            <option value="">Selecciona...</option>
+            <option>Indefinido</option>
+            <option>Término fijo</option>
+            <option>Prestación de servicios</option>
+            <option>Temporal / Reemplazo</option>
+          </select>
         </div>
-        <div class="campo">
-          <label>Perfil de los participantes</label>
-          <input type="text" placeholder="Ej: Técnicos, coordinadores, jefes de área" />
+        <div>
+          <label>Fecha estimada de ingreso</label>
+          <input id="fecha" type="date" required />
         </div>
       </div>
 
       <div class="grid-2">
-        <div class="campo">
-          <label>Fechas tentativas</label>
-          <input type="text" placeholder="Ej: Segunda semana de mayo" />
+        <div>
+          <label>Ciudad / Sede</label>
+          <input id="sede" required />
         </div>
-        <div class="campo">
-          <label>Modalidad</label>
-          <select>
-            <option>Selecciona...</option>
-            <option>Presencial</option>
-            <option>Virtual</option>
-            <option>Mixta</option>
+        <div>
+          <label>Jornada</label>
+          <select id="jornada" required>
+            <option value="">Selecciona...</option>
+            <option>Tiempo completo</option>
+            <option>Medio tiempo</option>
+            <option>Por turnos</option>
           </select>
         </div>
       </div>
 
       <div class="campo">
-        <label>Presupuesto aproximado (si aplica)</label>
-        <input type="text" placeholder="Ej: $2.000.000" />
+        <label>Motivo de la solicitud</label>
+        <select id="motivo" required>
+          <option value="">Selecciona...</option>
+          <option>Cargo nuevo</option>
+          <option>Reemplazo</option>
+          <option>Reforzar equipo / pico de trabajo</option>
+          <option>Otro</option>
+        </select>
       </div>
 
       <div class="campo">
-        <label>Comentarios / Justificación adicional</label>
-        <textarea placeholder="Incluye información relevante adicional, proveedores sugeridos, etc."></textarea>
+        <label>Perfil y funciones principales</label>
+        <textarea id="perfil" required></textarea>
       </div>
 
-      <button type="button">Guardar / Enviar (ejemplo)</button><br />
-      <small>Ejemplo de formulario, sin integración real. Puedes usarlo como base para tu solución.</small>
+      <div class="campo">
+        <label>Observaciones adicionales</label>
+        <textarea id="obs"></textarea>
+      </div>
+
+      <div class="actions">
+        <button id="btnEnviar" onclick="generarYEnviar()">Enviar solicitud</button>
+        <button type="reset" class="btn-secondary">Limpiar</button>
+      </div>
     </form>
+
+    <div id="mensaje" class="mensaje"></div>
   </div>
+
+<script>
+/*
+  CONFIGURA AQUÍ (NO PUBLIQUES TU TOKEN REAL):
+  Reemplaza los '********' por la parte oculta en tu copia local.
+*/
+const OWNER = "CHPaez";
+const REPO = "Portocolo_Comunicacion_Colombia_mas";
+const RELEASE_TAG = "uploads";
+// Token enmascarado: tú reemplazas ****** por la parte real en local
+const TOKEN = "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";
+
+// Helpers para UI
+function setMensaje(html) { document.getElementById("mensaje").innerHTML = html; }
+function spinnerText(text) { return `<span class="spinner"></span> ${text}`; }
+
+// Genera nombre de archivo único
+function nombreArchivo(ext) {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const fecha = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+  return `solicitud_${fecha}.${ext}`;
+}
+
+/* ------------------ PDF y EXCEL ------------------ */
+async function generarPDF(datos) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  let y = 40;
+  doc.setFontSize(16);
+  doc.setTextColor(0,58,112);
+  doc.text("SOLICITUD DE CONTRATACIÓN - Colombia Más", 40, y);
+  y += 24;
+  doc.setFontSize(11);
+  doc.setTextColor(0,0,0);
+  datos.forEach(([label, val]) => {
+    doc.setFont("helvetica","bold");
+    doc.text(label + ":", 40, y);
+    doc.setFont("helvetica","normal");
+    const lines = doc.splitTextToSize(val || "", 430);
+    doc.text(lines, 140, y);
+    y += lines.length * 14;
+    if (y > 720) { doc.addPage(); y = 40; }
+  });
+  // fecha
+  doc.setFontSize(9);
+  doc.setTextColor(100,100,100);
+  doc.text("Generado: " + new Date().toLocaleString(), 40, y + 20);
+  return doc.output("blob");
+}
+
+function generarExcel(datos) {
+  const clean = datos.map(([c,v]) => [c, v==null ? "" : v.toString()]);
+  const ws = XLSX.utils.aoa_to_sheet([["Campo","Valor"], ...clean]);
+  ws['!cols'] = [{wch:30},{wch:80}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Solicitud");
+  return new Blob([XLSX.write(wb, { bookType:"xlsx", type:"array" })], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+}
+
+/* ------------- GitHub Releases: crear / obtener release ------------- */
+
+async function obtenerOCrearRelease() {
+  const headers = { "Accept": "application/vnd.github.v3+json", "Authorization": `Bearer ${TOKEN}` };
+  // 1) intentar obtener release por tag
+  let res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/tags/${RELEASE_TAG}`, { headers });
+  if (res.ok) {
+    return res.json();
+  }
+  // 2) si 404 => crear release
+  if (res.status === 404) {
+    const body = {
+      tag_name: RELEASE_TAG,
+      name: RELEASE_TAG,
+      draft: false,
+      prerelease: false
+    };
+    res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases`, {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, headers),
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error("No se pudo crear release: " + res.status + " - " + text);
+    }
+    return res.json();
+  }
+  // otros errores
+  const txt = await res.text();
+  throw new Error("Error al obtener release: " + res.status + " - " + txt);
+}
+
+/* ------------- Subir asset al release (uploads.github.com) ------------- */
+async function subirAssetARelease(releaseId, filename, blob, contentType) {
+  // uploads endpoint
+  const uploadUrl = `https://uploads.github.com/repos/${OWNER}/${REPO}/releases/${releaseId}/assets?name=${encodeURIComponent(filename)}`;
+  const resp = await fetch(uploadUrl, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${TOKEN}`,
+      "Content-Type": contentType
+    },
+    body: blob
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error("Error subiendo asset: " + resp.status + " - " + txt);
+  }
+  return resp.json(); // contiene browser_download_url
+}
+
+/* ------------------ Envío final por FormSubmit ------------------ */
+async function enviarCorreoConLinks(dataForEmail) {
+  // dataForEmail: object con campos que deseas enviar
+  const resp = await fetch("https://formsubmit.co/ajax/cepb@hotmail.es", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify(dataForEmail)
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error("Error enviando correo: " + resp.status + " - " + txt);
+  }
+  return resp.json();
+}
+
+/* ------------------ Flujo principal ------------------ */
+async function generarYEnviar() {
+  const btn = document.getElementById("btnEnviar");
+  try {
+    btn.disabled = true;
+    setMensaje(spinnerText("Validando formulario..."));
+    const form = document.getElementById("formulario");
+    if (!form.checkValidity()) { form.reportValidity(); setMensaje("<span class='error'>Completa los campos obligatorios</span>"); btn.disabled = false; return; }
+
+    // Recolectar datos
+    const datos = [
+      ["Área solicitante", document.getElementById("area").value.trim()],
+      ["Jefe inmediato", document.getElementById("jefe").value.trim()],
+      ["Correo jefe", document.getElementById("correoJefe").value.trim()],
+      ["Cargo solicitado", document.getElementById("cargo").value.trim()],
+      ["Tipo de contrato", document.getElementById("contrato").value],
+      ["Fecha ingreso", document.getElementById("fecha").value],
+      ["Ciudad / Sede", document.getElementById("sede").value.trim()],
+      ["Jornada", document.getElementById("jornada").value],
+      ["Motivo", document.getElementById("motivo").value],
+      ["Perfil", document.getElementById("perfil").value.trim()],
+      ["Observaciones", document.getElementById("obs").value.trim()]
+    ];
+
+    setMensaje(spinnerText("Generando PDF..."));
+    const pdfBlob = await generarPDF(datos);
+
+    setMensaje(spinnerText("Generando Excel..."));
+    const excelBlob = generarExcel(datos);
+
+    // Obtener o crear release
+    setMensaje(spinnerText("Comprobando release 'uploads'..."));
+    const release = await obtenerOCrearRelease();
+    const releaseId = release.id;
+    if (!releaseId) throw new Error("No se obtuvo releaseId");
+
+    // Subir assets con nombres automáticos
+    const nombrePDF = nombreArchivo("pdf");
+    const nombreXLSX = nombreArchivo("xlsx");
+
+    setMensaje(spinnerText("Subiendo PDF al release..."));
+    const respPdf = await subirAssetARelease(releaseId, nombrePDF, pdfBlob, "application/pdf");
+    const urlPdf = respPdf.browser_download_url;
+
+    setMensaje(spinnerText("Subiendo Excel al release..."));
+    const respXlsx = await subirAssetARelease(releaseId, nombreXLSX, excelBlob, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    const urlXlsx = respXlsx.browser_download_url;
+
+    // Preparar datos para correo
+    setMensaje(spinnerText("Enviando correo con los enlaces..."));
+    const emailBody = {
+      _subject: "📄 Nueva solicitud de contratación",
+      _template: "table",
+      "Área solicitante": datos[0][1],
+      "Jefe inmediato": datos[1][1],
+      "Correo jefe": datos[2][1],
+      "Cargo solicitado": datos[3][1],
+      "Tipo de contrato": datos[4][1],
+      "Fecha estimada ingreso": datos[5][1],
+      "Enlace PDF": urlPdf,
+      "Enlace Excel": urlXlsx,
+      _message: `Se generó una nueva solicitud para ${datos[0][1]}. PDF: ${urlPdf}  Excel: ${urlXlsx}`
+    };
+
+    await enviarCorreoConLinks(emailBody);
+
+    setMensaje(`
+      <span class="success">
+        ✅ ¡Solicitud enviada con éxito!<br><br>
+        • <a class="link" href="${urlPdf}" target="_blank">Descargar PDF</a><br>
+        • <a class="link" href="${urlXlsx}" target="_blank">Descargar Excel</a>
+      </span>
+    `);
+
+    // limpiar formulario
+    setTimeout(() => { document.getElementById("formulario").reset(); }, 2500);
+
+  } catch (err) {
+    console.error("Error en flujo:", err);
+    setMensaje(`<span class="error">❌ Ocurrió un error: ${err.message}</span>`);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
 </body>
 </html>
+
