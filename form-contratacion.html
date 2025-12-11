@@ -1,3 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Formulario - Solicitud de contratación</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Librerías necesarias -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: #f3f5f7;
+      margin: 0;
+      padding: 1.5rem;
+      color: #263238;
+    }
+    .wrapper {
+      max-width: 840px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 1.5rem 1.7rem;
+      border-radius: 12px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+    }
+    h1 {
+      font-size: 1.3rem;
+      margin-bottom: 0.4rem;
+      color: #003a70;
+    }
+    p { font-size: 0.9rem; margin-bottom: 1rem; }
+    .grid-2 { display: grid; gap: 0.9rem; }
+    @media (min-width: 700px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    label { font-size: 0.84rem; font-weight: 600; display: block; margin-bottom: 0.25rem; }
+    input, select, textarea {
+      width: 100%; padding: 0.55rem 0.6rem; border-radius: 8px; border: 1px solid #cfd8dc;
+      font-size: 0.88rem; font-family: inherit; box-sizing: border-box;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .campo { margin-bottom: 0.7rem; }
+    .actions { display:flex; gap:0.6rem; align-items:center; margin-top:0.6rem; }
+    button {
+      border: none; border-radius: 999px; padding: 0.7rem 1.4rem;
+      background: linear-gradient(135deg, #0052a5, #007bff); color: #ffffff; font-weight: 600;
+      font-size: 0.95rem; cursor: pointer; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+    }
+    .btn-secondary { background: #e7eef6; color: #003a70; font-weight:700; }
+    .info { font-size:0.85rem; color:#506067; }
+    .success { color: #0b8a3e; font-weight:700; }
+    .error { color: #c0392b; font-weight:700; }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <h1>Formulario de solicitud de contratación</h1>
+    <p>El sistema generará un PDF y un Excel y enviará por correo los links de descarga.</p>
+
+    <form id="formulario">
+      <div class="campo">
+        <label>Área solicitante</label>
+        <input type="text" id="area" required />
+      </div>
+
+      <div class="grid-2">
+        <div class="campo">
+          <label>Nombre del jefe inmediato</label>
+          <input type="text" id="jefe" required />
+        </div>
+        <div class="campo">
+          <label>Correo del jefe inmediato</label>
+          <input type="email" id="correoJefe" required />
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Cargo a contratar</label>
+        <input type="text" id="cargo" required />
+      </div>
+
+      <div class="grid-2">
+        <div class="campo">
+          <label>Tipo de contrato</label>
+          <select id="contrato" required>
+            <option value="">Selecciona...</option>
+            <option>Indefinido</option>
+            <option>Término fijo</option>
+            <option>Prestación de servicios</option>
+            <option>Temporal / Reemplazo</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Fecha estimada de ingreso</label>
+          <input type="date" id="fecha" required />
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="campo">
+          <label>Ciudad / Sede</label>
+          <input type="text" id="sede" required />
+        </div>
+        <div class="campo">
+          <label>Jornada</label>
+          <select id="jornada" required>
+            <option value="">Selecciona...</option>
+            <option>Tiempo completo</option>
+            <option>Medio tiempo</option>
+            <option>Por turnos</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Motivo de la solicitud</label>
+        <select id="motivo" required>
+          <option value="">Selecciona...</option>
+          <option>Cargo nuevo</option>
+          <option>Reemplazo</option>
+          <option>Reforzar equipo / pico de trabajo</option>
+          <option>Otro</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Perfil y funciones principales</label>
+        <textarea id="perfil" required></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Observaciones adicionales</label>
+        <textarea id="obs"></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="button" onclick="generarYEnviar()">Enviar solicitud</button>
+        <button type="reset" class="btn-secondary">Limpiar</button>
+      </div>
+
+      <p id="mensaje" class="info" style="margin-top:12px;"></p>
+    </form>
+  </div>
+
 <script>
 async function subirAFileIO(blob, nombre) {
   const formData = new FormData();
@@ -11,7 +156,7 @@ async function subirAFileIO(blob, nombre) {
   const json = await resp.json();
   if (!json.success) throw new Error("Error subiendo archivo a File.io");
 
-  return json.link; // link de descarga
+  return json.link;
 }
 
 async function generarPDF(datos) {
@@ -47,7 +192,6 @@ async function generarYEnviar() {
   const mensaje = document.getElementById("mensaje");
   mensaje.innerHTML = "Generando archivos…";
 
-  // Obtener datos
   const datos = [
     ["Área solicitante", area.value],
     ["Jefe inmediato", jefe.value],
@@ -62,49 +206,47 @@ async function generarYEnviar() {
     ["Observaciones", obs.value]
   ];
 
-  // Validación
   if (datos.some(d => !d[1])) {
-    mensaje.innerHTML = "<span style='color:red'>Completa todos los campos</span>";
+    mensaje.innerHTML = "<span class='error'>Completa todos los campos</span>";
     return;
   }
 
-  // Generar archivos
   const pdfBlob = await generarPDF(datos);
   const excelBlob = generarExcel(datos);
 
-  mensaje.innerHTML = "Subiendo archivos…";
+  mensaje.innerHTML = "Subiendo archivos a File.io…";
 
-  // Subir archivos a File.io
   const linkPDF = await subirAFileIO(pdfBlob, "solicitud.pdf");
   const linkExcel = await subirAFileIO(excelBlob, "solicitud.xlsx");
 
   mensaje.innerHTML = "Enviando correo…";
 
-  // enviar correo sin adjuntos (solo links)
   fetch("https://formsubmit.co/ajax/cepb@hotmail.es", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       asunto: "Nueva solicitud de contratación",
-      mensaje: "Una nueva solicitud ha sido registrada.",
+      mensaje: "Se generó una nueva solicitud.",
       link_pdf: linkPDF,
       link_excel: linkExcel
     })
   })
   .then(() => {
     mensaje.innerHTML = `
-      <span style="color:green;font-weight:700">
+      <span class="success">
         ¡Solicitud enviada!<br>
         PDF: <a href="${linkPDF}" target="_blank">Ver PDF</a><br>
         Excel: <a href="${linkExcel}" target="_blank">Ver Excel</a>
       </span>`;
   })
   .catch(() => {
-    mensaje.innerHTML = "<span style='color:red'>Error enviando el correo</span>";
+    mensaje.innerHTML = "<span class='error'>Error enviando el correo.</span>";
   });
 }
 </script>
 
+</body>
+</html>
 
 
 
