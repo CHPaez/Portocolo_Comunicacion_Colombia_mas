@@ -1,60 +1,17 @@
 <script>
-const GITHUB_USERNAME = "CHPaez";
-const GITHUB_REPO = "Portocolo_Comunicacion_Colombia_mas";
-const GITHUB_PAT = "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";
+async function subirAFileIO(blob, nombre) {
+  const formData = new FormData();
+  formData.append("file", blob, nombre);
 
-async function subirArchivoGitHub(nombreArchivo, contenidoBlob) {
-  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${nombreArchivo}`;
-
-  const reader = new FileReader();
-
-  return new Promise((resolve, reject) => {
-    reader.onloadend = async () => {
-      const base64 = reader.result.split(",")[1];
-
-      const data = {
-        message: `Subiendo archivo ${nombreArchivo}`,
-        content: base64
-      };
-
-      try {
-        const resp = await fetch(url, {
-          method: "PUT",
-          headers: {
-            "Authorization": `Bearer ${GITHUB_PAT}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
-        });
-
-        const json = await resp.json();
-
-        if (json.content?.path) {
-          resolve(`https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/main/${json.content.path}`);
-        } else {
-          reject("Error subiendo archivo");
-        }
-
-      } catch (err) {
-        reject(err);
-      }
-    };
-
-    reader.readAsDataURL(contenidoBlob);
+  const resp = await fetch("https://file.io/?expires=1w", {
+    method: "POST",
+    body: formData
   });
-}
 
-function generarNombreArchivo(extension) {
-  const now = new Date();
-  const fecha =
-    now.getFullYear() + "-" +
-    String(now.getMonth() + 1).padStart(2, "0") + "-" +
-    String(now.getDate()).padStart(2, "0") + "_" +
-    String(now.getHours()).padStart(2, "0") + "-" +
-    String(now.getMinutes()).padStart(2, "0") + "-" +
-    String(now.getSeconds()).padStart(2, "0");
+  const json = await resp.json();
+  if (!json.success) throw new Error("Error subiendo archivo a File.io");
 
-  return `solicitud_${fecha}.${extension}`;
+  return json.link; // link de descarga
 }
 
 async function generarPDF(datos) {
@@ -67,7 +24,6 @@ async function generarPDF(datos) {
   y += 10;
 
   doc.setFontSize(10);
-
   datos.forEach(([campo, valor]) => {
     doc.text(`${campo}: ${valor}`, 10, y);
     y += 7;
@@ -80,72 +36,75 @@ function generarExcel(datos) {
   const ws = XLSX.utils.aoa_to_sheet([["Campo", "Valor"], ...datos]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Solicitud");
-  return new Blob([XLSX.write(wb, { bookType: "xlsx", type: "array" })]);
+
+  return new Blob(
+    [XLSX.write(wb, { bookType: "xlsx", type: "array" })],
+    { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+  );
 }
 
 async function generarYEnviar() {
   const mensaje = document.getElementById("mensaje");
   mensaje.innerHTML = "Generando archivos…";
 
-  const area = document.getElementById("area").value;
-  const jefe = document.getElementById("jefe").value;
-  const correoJefe = document.getElementById("correoJefe").value;
-  const cargo = document.getElementById("cargo").value;
-  const contrato = document.getElementById("contrato").value;
-  const fecha = document.getElementById("fecha").value;
-  const sede = document.getElementById("sede").value;
-  const jornada = document.getElementById("jornada").value;
-  const motivo = document.getElementById("motivo").value;
-  const perfil = document.getElementById("perfil").value;
-  const obs = document.getElementById("obs").value;
-
+  // Obtener datos
   const datos = [
-    ["Área solicitante", area],
-    ["Jefe inmediato", jefe],
-    ["Correo jefe", correoJefe],
-    ["Cargo solicitado", cargo],
-    ["Tipo de contrato", contrato],
-    ["Fecha ingreso", fecha],
-    ["Ciudad / Sede", sede],
-    ["Jornada", jornada],
-    ["Motivo", motivo],
-    ["Perfil", perfil],
-    ["Observaciones", obs]
+    ["Área solicitante", area.value],
+    ["Jefe inmediato", jefe.value],
+    ["Correo jefe", correoJefe.value],
+    ["Cargo solicitado", cargo.value],
+    ["Tipo de contrato", contrato.value],
+    ["Fecha ingreso", fecha.value],
+    ["Ciudad / Sede", sede.value],
+    ["Jornada", jornada.value],
+    ["Motivo", motivo.value],
+    ["Perfil", perfil.value],
+    ["Observaciones", obs.value]
   ];
 
+  // Validación
+  if (datos.some(d => !d[1])) {
+    mensaje.innerHTML = "<span style='color:red'>Completa todos los campos</span>";
+    return;
+  }
+
+  // Generar archivos
   const pdfBlob = await generarPDF(datos);
   const excelBlob = generarExcel(datos);
 
-  const nombrePDF = generarNombreArchivo("pdf");
-  const nombreXLSX = generarNombreArchivo("xlsx");
+  mensaje.innerHTML = "Subiendo archivos…";
 
-  mensaje.innerHTML = "Subiendo archivos a GitHub…";
+  // Subir archivos a File.io
+  const linkPDF = await subirAFileIO(pdfBlob, "solicitud.pdf");
+  const linkExcel = await subirAFileIO(excelBlob, "solicitud.xlsx");
 
-  try {
-    const urlPDF = await subirArchivoGitHub(nombrePDF, pdfBlob);
-    const urlExcel = await subirArchivoGitHub(nombreXLSX, excelBlob);
+  mensaje.innerHTML = "Enviando correo…";
 
-    mensaje.innerHTML = "Enviando correo…";
-
-    // Enviar correo con links
-    fetch("https://formsubmit.co/ajax/cepb@hotmail.es", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        asunto: "Nueva solicitud de contratación",
-        mensaje: "Se generaron los archivos",
-        link_pdf: urlPDF,
-        link_excel: urlExcel
-      })
-    });
-
-    mensaje.innerHTML = `<span style="color:green;font-weight:700">¡Solicitud enviada!<br>PDF: <a href="${urlPDF}" target="_blank">Ver</a><br>Excel: <a href="${urlExcel}" target="_blank">Ver</a></span>`;
-  }
-  catch (e) {
-    console.error(e);
-    mensaje.innerHTML = `<span style="color:red">Error subiendo los archivos</span>`;
-  }
+  // enviar correo sin adjuntos (solo links)
+  fetch("https://formsubmit.co/ajax/cepb@hotmail.es", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      asunto: "Nueva solicitud de contratación",
+      mensaje: "Una nueva solicitud ha sido registrada.",
+      link_pdf: linkPDF,
+      link_excel: linkExcel
+    })
+  })
+  .then(() => {
+    mensaje.innerHTML = `
+      <span style="color:green;font-weight:700">
+        ¡Solicitud enviada!<br>
+        PDF: <a href="${linkPDF}" target="_blank">Ver PDF</a><br>
+        Excel: <a href="${linkExcel}" target="_blank">Ver Excel</a>
+      </span>`;
+  })
+  .catch(() => {
+    mensaje.innerHTML = "<span style='color:red'>Error enviando el correo</span>";
+  });
 }
 </script>
+
+
 
 
