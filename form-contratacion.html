@@ -23,10 +23,6 @@
       color: #003a70;
       margin-bottom: 5px;
     }
-    p {
-      color: #546e7a;
-      font-size: 0.9rem;
-    }
     label {
       display: block;
       margin-bottom: 4px;
@@ -54,34 +50,35 @@
       background: #e0eaf6;
       color: #003a70;
     }
-    #mensaje {
-      margin-top: 10px;
-    }
-    .success { color: green; font-weight: bold; }
-    .error { color: red; font-weight: bold; }
   </style>
 </head>
 
 <body>
   <div class="wrapper">
     <h1>Solicitud de Contratación</h1>
-    <p>Envía una solicitud de contratación. Este demo no genera archivos.</p>
 
-    <form id="formulario">
+    <!-- ✔ FORMULARIO QUE SI ENVÍA CORRECTAMENTE SIN CORS -->
+    <form action="https://formsubmit.co/el/bevoxi" method="POST">
+
+      <!-- Configuración del correo -->
+      <input type="hidden" name="_subject" value="📄 Nueva solicitud de contratación">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
+
       <label>Área solicitante</label>
-      <input type="text" id="area" required />
+      <input type="text" name="Área solicitante" required>
 
       <label>Jefe inmediato</label>
-      <input type="text" id="jefe" required />
+      <input type="text" name="Jefe inmediato" required>
 
       <label>Correo del jefe</label>
-      <input type="email" id="correoJefe" required />
+      <input type="email" name="Correo del jefe" required>
 
       <label>Cargo solicitado</label>
-      <input type="text" id="cargo" required />
+      <input type="text" name="Cargo solicitado" required>
 
       <label>Tipo de contrato</label>
-      <select id="contrato" required>
+      <select name="Tipo contrato" required>
         <option value="">Seleccione...</option>
         <option>Indefinido</option>
         <option>Término fijo</option>
@@ -90,13 +87,13 @@
       </select>
 
       <label>Fecha estimada de ingreso</label>
-      <input type="date" id="fecha" required />
+      <input type="date" name="Fecha ingreso" required>
 
       <label>Ciudad / Sede</label>
-      <input type="text" id="sede" required />
+      <input type="text" name="Ciudad / Sede" required>
 
       <label>Jornada</label>
-      <select id="jornada" required>
+      <select name="Jornada" required>
         <option value="">Seleccione...</option>
         <option>Tiempo completo</option>
         <option>Medio tiempo</option>
@@ -104,7 +101,7 @@
       </select>
 
       <label>Motivo</label>
-      <select id="motivo" required>
+      <select name="Motivo" required>
         <option value="">Seleccione...</option>
         <option>Cargo nuevo</option>
         <option>Reemplazo</option>
@@ -113,63 +110,17 @@
       </select>
 
       <label>Perfil del cargo</label>
-      <textarea id="perfil" required></textarea>
+      <textarea name="Perfil del cargo" required></textarea>
 
       <label>Observaciones adicionales</label>
-      <textarea id="obs"></textarea>
+      <textarea name="Observaciones"></textarea>
 
-      <button type="button" onclick="enviar()">Enviar solicitud</button>
+      <button type="submit">Enviar solicitud</button>
       <button type="reset" class="btn-secondary">Limpiar</button>
 
-      <p id="mensaje"></p>
     </form>
+
   </div>
-
-<script>
-async function enviar() {
-  const form = document.getElementById("formulario");
-  const msg = document.getElementById("mensaje");
-
-  if (!form.checkValidity()) {
-      msg.innerHTML = "<span class='error'>Completa todos los campos obligatorios.</span>";
-      form.reportValidity();
-      return;
-  }
-
-  msg.innerHTML = "Enviando...";
-
-  const datos = {
-    "Área solicitante": document.getElementById("area").value,
-    "Jefe inmediato": document.getElementById("jefe").value,
-    "Correo del jefe": document.getElementById("correoJefe").value,
-    "Cargo solicitado": document.getElementById("cargo").value,
-    "Tipo contrato": document.getElementById("contrato").value,
-    "Fecha estimada ingreso": document.getElementById("fecha").value,
-    "Ciudad / Sede": document.getElementById("sede").value,
-    "Jornada": document.getElementById("jornada").value,
-    "Motivo": document.getElementById("motivo").value,
-    "Perfil del cargo": document.getElementById("perfil").value,
-    "Observaciones": document.getElementById("obs").value,
-    "_subject": "📄 Nueva solicitud de contratación",
-    "_template": "table",
-    "_message": "Nueva solicitud registrada (demo sin archivos)"
-  };
-
-  const resp = await fetch("https://formsubmit.co/ajax/el/bevoxi", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos)
-  });
-
-  if (resp.ok) {
-    msg.innerHTML = "<span class='success'>✔ Solicitud enviada correctamente.</span>";
-    form.reset();
-  } else {
-    msg.innerHTML = "<span class='error'>❌ Error enviando la solicitud.</span>";
-  }
-}
-</script>
-
 </body>
 </html>
 
