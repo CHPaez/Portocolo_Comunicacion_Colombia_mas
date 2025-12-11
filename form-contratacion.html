@@ -1,209 +1,151 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <title>Formulario - Solicitud de contratación</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Librerías -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-  <style>
-    body { font-family: "Segoe UI"; background:#f4f6f8; padding:20px; }
-    .wrapper {
-      max-width: 820px; margin:auto; background:#fff; padding:22px;
-      border-radius:16px; box-shadow:0 6px 18px rgba(0,0,0,0.1);
-    }
-    h1 { color:#003a70; }
-    .grid-2 { display:grid; gap:1rem; }
-    @media(min-width:700px){ .grid-2{ grid-template-columns:1fr 1fr; } }
-    label { font-weight:600; margin-bottom:4px; display:block; }
-    input, select, textarea {
-      width:100%; padding:8px 10px; border-radius:8px;
-      border:1px solid #cfd8dc; font-size:15px;
-    }
-    button {
-      padding:12px 20px; background:linear-gradient(135deg,#0052a5,#007bff);
-      border:none; border-radius:30px; color:#fff; font-size:16px;
-      cursor:pointer; margin-right:10px;
-    }
-    button:hover { opacity:.9; }
-    .btn-secondary { background:#e7eef6; color:#003a70; }
-    .small { font-size:13px; margin-top:10px; color:#607d8b; }
-    .success { color:#0b8a3e; font-weight:700; }
-    .error { color:#c0392b; font-weight:700; }
-  </style>
-</head>
-<body>
-
-  <div class="wrapper">
-    <h1>Formulario de solicitud de contratación</h1>
-    <p>Al enviar se generará un PDF y un Excel que serán enviados al correo de Gestión Humana.</p>
-
-    <form id="formulario" method="POST" action="https://api.web3forms.com/submit" enctype="multipart/form-data">
-
-      <!-- Web3Forms Access Key -->
-      <input type="hidden" name="access_key" value="58f6e58b-6d31-491b-af38-3f5b48130e01">
-
-      <!-- Página de gracias -->
-      <input type="hidden" name="redirect" value="https://chpaez.github.io/Portocolo_Comunicacion_Colombia_mas/gracias.html">
-
-      <!-- Archivos adjuntos -->
-      <input type="file" id="pdf-adjunto" name="pdf" style="display:none;">
-      <input type="file" id="excel-adjunto" name="excel" style="display:none;">
-
-      <div class="campo">
-        <label>Área solicitante</label>
-        <input type="text" name="Area" id="area" required>
-      </div>
-
-      <div class="grid-2">
-        <div class="campo">
-          <label>Nombre del jefe inmediato</label>
-          <input type="text" name="Jefe" id="jefe" required>
-        </div>
-        <div class="campo">
-          <label>Correo del jefe inmediato</label>
-          <input type="email" name="Correo_Jefe" id="correoJefe" required>
-        </div>
-      </div>
-
-      <div class="campo">
-        <label>Cargo a contratar</label>
-        <input type="text" name="Cargo" id="cargo" required>
-      </div>
-
-      <div class="grid-2">
-        <div class="campo">
-          <label>Tipo de contrato</label>
-          <select name="Contrato" id="contrato" required>
-            <option value="">Selecciona...</option>
-            <option>Indefinido</option>
-            <option>Término fijo</option>
-            <option>Prestación de servicios</option>
-            <option>Temporal / Reemplazo</option>
-          </select>
-        </div>
-        <div class="campo">
-          <label>Fecha estimada ingreso</label>
-          <input type="date" name="Fecha" id="fecha" required>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="campo">
-          <label>Ciudad / Sede</label>
-          <input type="text" name="Sede" id="sede" required>
-        </div>
-        <div class="campo">
-          <label>Jornada</label>
-          <select name="Jornada" id="jornada" required>
-            <option value="">Selecciona...</option>
-            <option>Tiempo completo</option>
-            <option>Medio tiempo</option>
-            <option>Por turnos</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="campo">
-        <label>Motivo de la solicitud</label>
-        <select name="Motivo" id="motivo" required>
-          <option value="">Selecciona...</option>
-          <option>Cargo nuevo</option>
-          <option>Reemplazo</option>
-          <option>Reforzar equipo</option>
-        </select>
-      </div>
-
-      <div class="campo">
-        <label>Perfil y funciones</label>
-        <textarea name="Perfil" id="perfil" required></textarea>
-      </div>
-
-      <div class="campo">
-        <label>Observaciones</label>
-        <textarea name="Observaciones" id="obs"></textarea>
-      </div>
-
-      <button type="button" onclick="generarYEnviar()">Enviar solicitud</button>
-      <button type="reset" class="btn-secondary">Limpiar</button>
-
-      <p id="mensaje" class="small"></p>
-    </form>
-  </div>
-
 <script>
-function fileFromBlob(blob, filename, mime) {
-  return new File([blob], filename, { type: mime });
+const GITHUB_USERNAME = "CHPaez";
+const GITHUB_REPO = "Portocolo_Comunicacion_Colombia_mas";
+const GITHUB_PAT = "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";
+
+async function subirArchivoGitHub(nombreArchivo, contenidoBlob) {
+  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${nombreArchivo}`;
+
+  const reader = new FileReader();
+
+  return new Promise((resolve, reject) => {
+    reader.onloadend = async () => {
+      const base64 = reader.result.split(",")[1];
+
+      const data = {
+        message: `Subiendo archivo ${nombreArchivo}`,
+        content: base64
+      };
+
+      try {
+        const resp = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${GITHUB_PAT}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const json = await resp.json();
+
+        if (json.content?.path) {
+          resolve(`https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/main/${json.content.path}`);
+        } else {
+          reject("Error subiendo archivo");
+        }
+
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    reader.readAsDataURL(contenidoBlob);
+  });
+}
+
+function generarNombreArchivo(extension) {
+  const now = new Date();
+  const fecha =
+    now.getFullYear() + "-" +
+    String(now.getMonth() + 1).padStart(2, "0") + "-" +
+    String(now.getDate()).padStart(2, "0") + "_" +
+    String(now.getHours()).padStart(2, "0") + "-" +
+    String(now.getMinutes()).padStart(2, "0") + "-" +
+    String(now.getSeconds()).padStart(2, "0");
+
+  return `solicitud_${fecha}.${extension}`;
 }
 
 async function generarPDF(datos) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  let y = 20;
 
-  doc.setFontSize(16);
-  doc.text("Solicitud de Contratación - Colombia Más", 20, y);
-  y += 15;
+  let y = 15;
+  doc.setFontSize(14);
+  doc.text("Solicitud de contratación - Colombia Más", 10, y);
+  y += 10;
 
-  doc.setFontSize(12);
-  datos.forEach(([label, val]) => {
-    doc.text(`${label}: ${val}`, 20, y);
-    y += 8;
+  doc.setFontSize(10);
+
+  datos.forEach(([campo, valor]) => {
+    doc.text(`${campo}: ${valor}`, 10, y);
+    y += 7;
   });
 
   return doc.output("blob");
 }
 
 function generarExcel(datos) {
+  const ws = XLSX.utils.aoa_to_sheet([["Campo", "Valor"], ...datos]);
   const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet([["Campo","Valor"], ...datos]);
   XLSX.utils.book_append_sheet(wb, ws, "Solicitud");
-  return XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  return new Blob([XLSX.write(wb, { bookType: "xlsx", type: "array" })]);
 }
 
 async function generarYEnviar() {
   const mensaje = document.getElementById("mensaje");
-  mensaje.innerHTML = "Generando PDF y Excel...";
+  mensaje.innerHTML = "Generando archivos…";
+
+  const area = document.getElementById("area").value;
+  const jefe = document.getElementById("jefe").value;
+  const correoJefe = document.getElementById("correoJefe").value;
+  const cargo = document.getElementById("cargo").value;
+  const contrato = document.getElementById("contrato").value;
+  const fecha = document.getElementById("fecha").value;
+  const sede = document.getElementById("sede").value;
+  const jornada = document.getElementById("jornada").value;
+  const motivo = document.getElementById("motivo").value;
+  const perfil = document.getElementById("perfil").value;
+  const obs = document.getElementById("obs").value;
 
   const datos = [
-    ["Área", area.value],
-    ["Jefe inmediato", jefe.value],
-    ["Correo jefe", correoJefe.value],
-    ["Cargo", cargo.value],
-    ["Contrato", contrato.value],
-    ["Fecha ingreso", fecha.value],
-    ["Sede", sede.value],
-    ["Jornada", jornada.value],
-    ["Motivo", motivo.value],
-    ["Perfil", perfil.value],
-    ["Observaciones", obs.value],
+    ["Área solicitante", area],
+    ["Jefe inmediato", jefe],
+    ["Correo jefe", correoJefe],
+    ["Cargo solicitado", cargo],
+    ["Tipo de contrato", contrato],
+    ["Fecha ingreso", fecha],
+    ["Ciudad / Sede", sede],
+    ["Jornada", jornada],
+    ["Motivo", motivo],
+    ["Perfil", perfil],
+    ["Observaciones", obs]
   ];
 
   const pdfBlob = await generarPDF(datos);
-  const excelArray = generarExcel(datos);
+  const excelBlob = generarExcel(datos);
 
-  const pdfFile = fileFromBlob(pdfBlob, "solicitud.pdf", "application/pdf");
-  const excelFile = new File([excelArray], "solicitud.xlsx", {
-    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  });
+  const nombrePDF = generarNombreArchivo("pdf");
+  const nombreXLSX = generarNombreArchivo("xlsx");
 
-  const dt1 = new DataTransfer();
-  dt1.items.add(pdfFile);
-  document.getElementById("pdf-adjunto").files = dt1.files;
+  mensaje.innerHTML = "Subiendo archivos a GitHub…";
 
-  const dt2 = new DataTransfer();
-  dt2.items.add(excelFile);
-  document.getElementById("excel-adjunto").files = dt2.files;
+  try {
+    const urlPDF = await subirArchivoGitHub(nombrePDF, pdfBlob);
+    const urlExcel = await subirArchivoGitHub(nombreXLSX, excelBlob);
 
-  mensaje.innerHTML = "Enviando...";
-  setTimeout(() => document.getElementById("formulario").submit(), 500);
+    mensaje.innerHTML = "Enviando correo…";
+
+    // Enviar correo con links
+    fetch("https://formsubmit.co/ajax/cepb@hotmail.es", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        asunto: "Nueva solicitud de contratación",
+        mensaje: "Se generaron los archivos",
+        link_pdf: urlPDF,
+        link_excel: urlExcel
+      })
+    });
+
+    mensaje.innerHTML = `<span style="color:green;font-weight:700">¡Solicitud enviada!<br>PDF: <a href="${urlPDF}" target="_blank">Ver</a><br>Excel: <a href="${urlExcel}" target="_blank">Ver</a></span>`;
+  }
+  catch (e) {
+    console.error(e);
+    mensaje.innerHTML = `<span style="color:red">Error subiendo los archivos</span>`;
+  }
 }
 </script>
-
-</body>
-</html>
 
 
